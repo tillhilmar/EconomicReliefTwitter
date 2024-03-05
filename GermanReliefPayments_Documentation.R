@@ -142,40 +142,46 @@ ALL_duplicates_noRT_modified$keyword[ALL_duplicates_noRT_modified$keyword == "De
 ALL_duplicates_noRT_modified$keyword[ALL_duplicates_noRT_modified$keyword == "Überbrückungshilfen"] <- "Bridging Assistance"
 ALL_duplicates_noRT_modified$keyword[ALL_duplicates_noRT_modified$keyword == "Neustarthilfen"] <- "New Start Assistance"
 
-keyword_counts <- ALL_duplicates_noRT %>%
+keyword_counts <- ALL_duplicates_noRT_modified %>%
   group_by(created_at, keyword) %>%
-  tally
+  tally()
 
 wsjPal <- c('#1C366B','#C4CFD0','#1DACE8','#F24D29','#76A08A','#9A872D')
 
-keyword_counts$keyword <- factor(keyword_counts$keyword, levels=c("Coronahilfen", "Dezemberhilfen" , "Soforthilfen", "Überbrückungshilfen", "Novemberhilfen", "Neustarthilfen"))
-levels(keyword_counts$keyword)
+ordered_keywords <- c("Corona Assistance", "December Assistance", "Emergency Assistance", 
+                      "Bridging Assistance", "November Assistance", "New Start Assistance")
+
+keyword_counts$keyword <- factor(keyword_counts$keyword, levels = ordered_keywords)
 
 Sys.setlocale("LC_TIME", "C")
 
-gb <- keyword_counts %>% 
-  ggplot(aes(x = created_at, y = n, group= keyword, color = keyword)) +
-  geom_line(size = 0.5)+
-  labs(x = "Date", y = "Keyword", color = "keyword", fill = "keyword", title = "Number of times German Covid-19 direct subsidies are mentioned in tweets", subtitle = "Mar 1, 2020 - Jun 30, 2021 n = 142.585 (excl. retweets)")+
-  scale_color_manual(values = wsjPal) +
-  #scale_x_date(date_labels = "%b-%d-%Y")+
-  scale_x_date(breaks = "2 month", date_labels= "%b-%Y") +
-  #scale_color_wsj(palette = "colors6")+
-  #scale_color_viridis(discrete = TRUE, option = "D")+
-  #scale_color_manual(values = wes.palette(n=3, name="Zissou"))+
-  theme_wsj()+
-  theme(plot.title = element_text(size = 11, family="sans"),
-        plot.subtitle = element_text(size = 10, family="sans"),
-        plot.background = element_rect(fill = "white"), panel.background = element_rect(fill = "white"),
+# Plot with ordered small multiples
+gb <- keyword_counts %>%
+  ggplot(aes(x = created_at, y = n, group = keyword, color = keyword)) +
+  geom_line(size = 0.5) +
+  labs(x = "Date", y = "Count", color = "Keyword", fill = "Keyword", 
+       title = "Number of times German Covid-19 direct subsidies are mentioned in tweets",
+       subtitle = "Mar 1, 2020 - Jun 30, 2021 n = 142.585 (excl. retweets)") +
+  scale_color_manual(values = wsjPal, breaks = ordered_keywords) +  # Ensure legend order matches
+  scale_x_date(breaks = "2 month", date_labels = "%b-%Y") +
+  theme_wsj() +
+  theme(plot.title = element_text(size = 11, family = "sans"),
+        plot.subtitle = element_text(size = 10, family = "sans"),
+        plot.background = element_rect(fill = "white"), 
+        panel.background = element_rect(fill = "white"),
         panel.grid.minor = element_blank(),
         panel.grid.major.x = element_blank(),
         legend.background = element_rect(fill = "white"),
-        legend.title=element_blank(),
+        legend.title = element_blank(),
         legend.key = element_rect(fill = "white", color = NA),
-        legend.position = "bottom") +
-  theme(axis.text.x = element_text(angle=45, hjust = 1))
-gb
-ggsave("Distribution.jpg")
+        legend.position = "none", # removed the legend in this plot
+        axis.text.x = element_text(angle = 45, hjust = 1)) +
+  facet_wrap(~keyword, scales = "free_y") 
+
+# Display the plot
+print(gb)
+
+ggsave("distribution_new.png", gb, width = 10, height = 6, dpi = 900)
 
 # calculating means
 
