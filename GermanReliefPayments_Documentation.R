@@ -161,7 +161,7 @@ gb <- keyword_counts %>%
   geom_line(size = 0.5) +
   labs(x = "Date", y = "Count", color = "Keyword", fill = "Keyword", 
        title = "Number of times German Covid-19 direct subsidies are mentioned in tweets",
-       subtitle = "Mar 1, 2020 - Jun 30, 2021 n = 142.585 (excl. retweets)") +
+       subtitle = "Mar 1, 2020 - Jun 30, 2021 n = 142585 (excl. retweets)") +
   scale_color_manual(values = wsjPal, breaks = ordered_keywords) +  # Ensure legend order matches
   scale_x_date(breaks = "2 month", date_labels = "%b-%Y") +
   theme_wsj() +
